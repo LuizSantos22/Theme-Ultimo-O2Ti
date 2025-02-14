@@ -1,0 +1,53 @@
+<?php $_product = $this->getProduct(); ?>
+<?php $buttonTitle = $this->__('Add to Cart'); ?>
+<?php if ($_product->isSaleable()): ?>
+    <div class="add-to-cart left-side">
+        <?php if(!$_product->isGrouped()): ?>
+            <div class="qty-wrapper">
+                <label for="qty"><?php echo $this->__('Qty:') ?></label>
+                <input type="text" name="qty" id="qty" maxlength="12" value="<?php echo $this->getProductDefaultQty() * 1 ?>" title="<?php echo Mage::helper('core')->quoteEscape($this->__('Qty')) ?>" class="input-text qty" min="1" />
+            </div>
+        <?php endif; ?>
+        <button type="button" title="<?php echo $buttonTitle ?>" id="product-addtocart-button" class="button btn-cart" onclick="productAddToCartForm.submit(this)"><span><span><?php echo $buttonTitle ?></span></span></button>
+    </div>
+    <div class="paypal-wrapper"><?php echo $this->getChildHtml('', true, true) ?></div>
+    <script type="text/javascript">
+        //<![CDATA[
+        jQuery(function($) {
+            function qtyAdd(a, b, precision) {
+                var x = Math.pow(10, precision || 2);
+                return (Math.round(a * x) + Math.round(b * x)) / x;
+            }
+            function qtySubtract(a, b, precision) {
+                var x = Math.pow(10, precision || 2);
+                return (Math.round(a * x) - Math.round(b * x)) / x;
+            }
+            // Insert plus/minus buttons
+            $('.qty-wrapper').append('<div class="qty-buttons-wrapper"><div class="qty-button increase"></div><div class="qty-button decrease"></div></div>');
+            // Initialize plus/minus buttons
+            $('.qty-button').on('click', function() {
+                var $button = $(this);
+                var $input = $button.parent().parent().find('input');
+                var oldValue = parseFloat($input.val()) || 1; // Make sure value is at least "1"
+                var newVal = 0;
+
+                if ($button.hasClass('increase')) {
+                    newVal = qtyAdd(oldValue, 1, 4); // Increase value
+                } else {
+                    newVal = qtySubtract(oldValue, 1, 4); // Decrease value
+                    newVal = Math.max(1, newVal); // Make sure min value is at least "1"
+                }
+
+                $input.val(newVal); // Update quantity field
+            });
+
+            // Disable user possibility to input quantity value less than "1"
+            $('.qty').on('input', function() {
+                var $input = $(this);
+                var value = parseFloat($input.val()) || 1; // Make sure value is at least "1"
+                $input.val(Math.max(1, value)); // Defines min value as "1"
+            });
+        });
+        //]]>
+    </script>
+<?php endif; ?>
